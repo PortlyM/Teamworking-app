@@ -1,0 +1,10 @@
+# Python / Django
+backend/.venv/
+backend/__pycache__/
+backend/*.pyc
+backend/core/__pycache__/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
