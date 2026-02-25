@@ -12,7 +12,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('email', 'username', 'password')
 
     def create(self, validated_data):
-        # To jest kluczowe: create_user automatycznie haszuje hasło!
         user = User.objects.create_user(
             email=validated_data['email'],
             username=validated_data['username'],

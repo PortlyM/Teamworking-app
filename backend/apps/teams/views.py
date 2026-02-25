@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 class TeamListView(APIView):
-    permission_classes = [IsAuthenticated] # Tylko zalogowani z ważnym tokenem JWT
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         content = {'message': f'Cześć {request.user.email}, to są Twoje drużyny!'}
