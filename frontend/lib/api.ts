@@ -18,3 +18,18 @@ export const loginUser = async (email: string, password: string) => {
   localStorage.setItem('refresh', data.refresh);
   return data;
 };
+
+export const registerUser = async (userData: any) => {
+  const res = await fetch(`${API_URL}/auth/register/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(JSON.stringify(errorData)); // Zwracamy dokładny błąd z Django
+  }
+
+  return await res.json();
+};
