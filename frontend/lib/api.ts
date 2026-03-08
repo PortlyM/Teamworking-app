@@ -4,7 +4,7 @@ export const loginUser = async (email: string, password: string) => {
   const res = await fetch(`${API_URL}/auth/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }, 
-    body: JSON.stringify({ username: email, password: password }), 
+    body: JSON.stringify({ email, password }), 
   });
 
   if (!res.ok) {
@@ -28,7 +28,7 @@ export const registerUser = async (userData: any) => {
 
   if (!res.ok) {
     const errorData = await res.json();
-    throw new Error(JSON.stringify(errorData)); // Zwracamy dokładny błąd z Django
+    throw new Error(JSON.stringify(errorData));
   }
 
   return await res.json();

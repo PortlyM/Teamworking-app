@@ -1,3 +1,5 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
@@ -24,3 +26,30 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if email and password:
+            try:
+                user = User.objects.get(email=email)
+                
+                if user.check_password(password):
+                    if not user.is_active:
+                        raise AuthenticationFailed('To konto zostało wyłączone.')
+                    
+                    self.user = user
+                    refresh = self.get_token(user)
+                    
+                    return {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    }
+            except User.DoesNotExist:
+                pass
+        
+        raise AuthenticationFailed('Nieprawidłowy adres e-mail lub hasło.')
