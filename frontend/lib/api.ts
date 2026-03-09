@@ -33,3 +33,28 @@ export const registerUser = async (userData: any) => {
 
   return await res.json();
 };
+
+export const logoutUser = async () => {
+  const refresh = localStorage.getItem('refresh');
+  const access = localStorage.getItem('access');
+
+  if (refresh && access) {
+    try {
+      // Powiadamiamy Django, żeby zablokował token
+      await fetch(`${API_URL}/auth/logout/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${access}` // Musimy udowodnić kim jesteśmy
+        },
+        body: JSON.stringify({ refresh }), // Wysyłamy refresh do zablokowania
+      });
+    } catch (error) {
+      console.error("Błąd podczas wylogowywania na serwerze", error);
+    }
+  }
+
+  // BEZ WZGLĘDU NA TO, co odpowiedział serwer, usuwamy tokeny z przeglądarki
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
+};
