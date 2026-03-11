@@ -40,21 +40,19 @@ export const logoutUser = async () => {
 
   if (refresh && access) {
     try {
-      // Powiadamiamy Django, żeby zablokował token
       await fetch(`${API_URL}/auth/logout/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${access}` // Musimy udowodnić kim jesteśmy
+          'Authorization': `Bearer ${access}`
         },
-        body: JSON.stringify({ refresh }), // Wysyłamy refresh do zablokowania
+        body: JSON.stringify({ refresh }),
       });
     } catch (error) {
       console.error("Błąd podczas wylogowywania na serwerze", error);
     }
   }
 
-  // BEZ WZGLĘDU NA TO, co odpowiedział serwer, usuwamy tokeny z przeglądarki
   localStorage.removeItem('access');
   localStorage.removeItem('refresh');
 };
