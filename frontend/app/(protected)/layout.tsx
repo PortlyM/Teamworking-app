@@ -33,6 +33,7 @@ export default function ProtectedLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <h1>Teamworking App</h1>
       <LinkPanel />
       <LogoutButton />
 

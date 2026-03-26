@@ -53,3 +53,8 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
                 pass
         
         raise AuthenticationFailed('Nieprawidłowy adres e-mail lub hasło.')
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')

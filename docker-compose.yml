@@ -44,6 +44,18 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
     depends_on:
       - backend
+  
+  ws-server:
+    build: 
+      context: ./backend
+    command: python -m daphne -b 0.0.0.0 -p 8001 core.asgi:application
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres_data:

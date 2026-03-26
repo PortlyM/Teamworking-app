@@ -12,3 +12,4 @@ psycopg2-binary==2.9.11
 PyJWT==2.11.0
 redis==7.2.1
 sqlparse==0.5.5
+daphne==4.1.0

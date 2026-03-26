@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
-from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView
+from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView, UserListView
+from apps.chat.views import PrivateChatHistoryView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +27,9 @@ urlpatterns = [
     path('chat/', include('apps.chat.urls')),
     path('tasks/', include('apps.tasks.urls')),
     path('api/v1/auth/login/', EmailTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/register/', RegisterView.as_view(), name='auth_register'),
     path('api/v1/auth/logout/', LogoutView.as_view(), name='auth_logout'),
+    path('api/v1/users/', UserListView.as_view(), name='user_list'),
+    path('api/v1/chat/history/private/<int:target_id>/', PrivateChatHistoryView.as_view(), name='private_chat_history'),
 ]

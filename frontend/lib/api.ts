@@ -56,3 +56,67 @@ export const logoutUser = async () => {
   localStorage.removeItem('access');
   localStorage.removeItem('refresh');
 };
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  let token = localStorage.getItem('access');
+
+  let response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 401) {
+    console.log("Token wygasł! Próbuję odświeżyć...");
+    const refreshToken = localStorage.getItem('refresh');
+
+    if (refreshToken) {
+      try {
+        const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+
+        if (refreshResponse.ok) {
+          const data = await refreshResponse.json();
+          localStorage.setItem('access', data.access);
+          token = data.access;
+
+          response = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+        } else {
+          throw new Error("Refresh token wygasł");
+        }
+      } catch (error) {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        window.location.href = '/login'; 
+        throw error;
+      }
+    } else {
+      window.location.href = '/login';
+    }
+  }
+
+  return response;
+}
+
+export const getUsers = async () => {
+  const res = await fetchWithAuth(`${API_URL}/users/`);
+  if (!res.ok) throw new Error('Błąd pobierania użytkowników');
+  return res.json();
+};
+
+export const getChatHistory = async (targetId: number) => {
+  const res = await fetchWithAuth(`${API_URL}/chat/history/private/${targetId}/`);
+  if (!res.ok) throw new Error('Błąd pobierania historii czatu');
+  return res.json();
+};
