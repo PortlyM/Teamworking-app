@@ -19,6 +19,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView, UserListView
 from apps.chat.views import PrivateChatHistoryView
+from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,7 @@ urlpatterns = [
     path('api/v1/auth/logout/', LogoutView.as_view(), name='auth_logout'),
     path('api/v1/users/', UserListView.as_view(), name='user_list'),
     path('api/v1/chat/history/private/<int:target_id>/', PrivateChatHistoryView.as_view(), name='private_chat_history'),
+    path('api/v1/teams/', TeamListCreateView.as_view(), name='team_list_create'),
+    path('api/v1/teams/<int:pk>/members/', TeamMemberListView.as_view(), name='team_members'),
+    path('api/v1/teams/<int:pk>/leave/', TeamLeaveView.as_view(), name='team_leave'),
 ]

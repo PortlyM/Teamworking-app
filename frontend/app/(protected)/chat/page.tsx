@@ -89,20 +89,28 @@ export default function ChatPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-              {messages.map((msg, idx) => (
-                <div 
-                  key={idx} 
-                  className={`flex ${isMyMessage(msg.sender_id) ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
-                    isMyMessage(msg.sender_id) 
-                      ? 'bg-blue-600 text-white rounded-br-none' 
-                      : 'bg-white border text-gray-800 rounded-bl-none'
-                  }`}>
-                    {msg.message}
+              {messages.map((msg, idx) => {
+                const isMine = isMyMessage(msg.sender_id);
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                  >
+                    <span className="text-xs text-gray-500 mb-1 px-1">
+                      {isMine ? 'Ja' : selectedUser.username}
+                    </span>
+                    
+                    <div className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
+                      isMine 
+                        ? 'bg-blue-600 text-white rounded-br-none' 
+                        : 'bg-white border text-gray-800 rounded-bl-none'
+                    }`}>
+                      {msg.message}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
 
