@@ -4,7 +4,8 @@ from .models import Message
 class MessageSerializer(serializers.ModelSerializer):
     message = serializers.CharField(source='content')
     sender_id = serializers.IntegerField(source='sender.id', read_only=True)
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
 
     class Meta:
         model = Message
-        fields = ('id', 'sender_id', 'message', 'timestamp')
+        fields = ('id', 'sender_id', 'sender_username', 'message', 'timestamp')

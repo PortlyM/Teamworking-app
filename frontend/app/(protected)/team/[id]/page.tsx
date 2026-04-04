@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getTeamMembers, leaveTeam } from '@/lib/api';
+import { getTeamMembers, leaveTeam, getTeamChatHistory } from '@/lib/api';
 
 type User = { id: number; username: string; email: string };
 type Message = { sender_username: string; message: string; timestamp: string };
@@ -25,7 +25,6 @@ export default function TeamDetailsPage() {
   useEffect(() => {
     if (!teamId) return;
     
-    // 1. Pobieranie danych zespołu
     getTeamMembers(teamId)
       .then(data => {
         setMembers(data.members);
@@ -37,11 +36,13 @@ export default function TeamDetailsPage() {
         router.push('/team');
       });
 
-    // 2. Tworzenie bezpiecznego połączenia
+    getTeamChatHistory(teamId)
+      .then(data => setMessages(data))
+      .catch(err => console.error("Nie udało się załadować historii", err));
+
     const token = localStorage.getItem('access');
     const socketUrl = `ws://localhost:8001/ws/chat/team/${teamId}/?token=${token}`;
     
-    // Używamy lokalnej stałej zamiast od razu pchać do ws.current
     const socket = new WebSocket(socketUrl);
     ws.current = socket;
 
@@ -50,13 +51,10 @@ export default function TeamDetailsPage() {
       setMessages((prev) => [...prev, data]);
     };
 
-    // 3. Sprytne zamykanie (odporne na React Strict Mode)
     return () => {
       if (socket.readyState === WebSocket.CONNECTING) {
-        // Jeśli przeglądarka nadal się łączy, zlecamy zamknięcie zaraz po otwarciu
         socket.onopen = () => socket.close();
       } else if (socket.readyState === WebSocket.OPEN) {
-        // Jeśli już jest otwarta, zamykamy natychmiast
         socket.close();
       }
     };
@@ -77,7 +75,7 @@ export default function TeamDetailsPage() {
     if (!confirm("Czy na pewno chcesz opuścić ten zespół?")) return;
     try {
       await leaveTeam(teamId);
-      router.push('/team'); // Wyrzucamy użytkownika do huba po opuszczeniu
+      router.push('/team');
     } catch (error) {
       alert("Błąd podczas opuszczania zespołu.");
     }

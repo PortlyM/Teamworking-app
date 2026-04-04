@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView, UserListView
-from apps.chat.views import PrivateChatHistoryView
+from apps.chat.views import PrivateChatHistoryView, TeamChatHistoryView
 from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView
 
 urlpatterns = [
@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/v1/teams/', TeamListCreateView.as_view(), name='team_list_create'),
     path('api/v1/teams/<int:pk>/members/', TeamMemberListView.as_view(), name='team_members'),
     path('api/v1/teams/<int:pk>/leave/', TeamLeaveView.as_view(), name='team_leave'),
+    path('api/v1/chat/history/team/<int:team_id>/', TeamChatHistoryView.as_view(), name='team_chat_history'),
 ]

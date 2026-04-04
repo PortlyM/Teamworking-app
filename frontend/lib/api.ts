@@ -150,3 +150,9 @@ export const leaveTeam = async (teamId: number | string) => {
   if (!res.ok) throw new Error('Błąd opuszczania drużyny');
   return res.json();
 };
+
+export const getTeamChatHistory = async (teamId: number | string) => {
+  const res = await fetchWithAuth(`${API_URL}/chat/history/team/${teamId}/`);
+  if (!res.ok) throw new Error('Błąd pobierania historii czatu drużyny');
+  return res.json();
+};
