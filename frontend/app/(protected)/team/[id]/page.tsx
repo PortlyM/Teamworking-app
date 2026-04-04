@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getTeamMembers, leaveTeam, getTeamChatHistory } from '@/lib/api';
+import { getTeamMembers, leaveTeam, getTeamChatHistory, deleteTeam, getMyUserId } from '@/lib/api';
 
 type User = { id: number; username: string; email: string };
 type Message = { sender_username: string; message: string; timestamp: string };
@@ -11,9 +11,11 @@ export default function TeamDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const teamId = params.id as string;
+  const myUserId = getMyUserId();
 
   const [members, setMembers] = useState<User[]>([]);
   const [leaderId, setLeaderId] = useState<number | null>(null);
+  const [teamName, setTeamName] = useState<string>('');
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentText, setCurrentText] = useState('');
@@ -72,12 +74,36 @@ export default function TeamDetailsPage() {
   };
 
   const handleLeaveTeam = async () => {
-    if (!confirm("Czy na pewno chcesz opuścić ten zespół?")) return;
+    if (members.length === 1) {
+      if (!confirm("Jesteś jedynym członkiem tej grupy. Opuszczenie jej spowoduje jej całkowite i nieodwracalne usunięcie. Kontynuować?")) return;
+      
+      try {
+        await deleteTeam(teamId); // Używamy API do usunięcia całej grupy
+        router.push('/team');
+      } catch (error) {
+        alert("Błąd podczas usuwania zespołu.");
+      }
+    } 
+    // SCENARIUSZ 2: W zespole są też inni ludzie
+    else {
+      if (!confirm("Czy na pewno chcesz opuścić ten zespół?")) return;
+      
+      try {
+        await leaveTeam(teamId); // Używamy API do zwykłego wyjścia
+        router.push('/team');
+      } catch (error) {
+        alert("Błąd podczas opuszczania zespołu.");
+      }
+    }
+  };
+
+  const handleDeleteTeam = async () => {
+    if (!confirm("OSTRZEŻENIE: Całkowite usunięcie zespołu skasuje również jego historię czatu. Kontynuować?")) return;
     try {
-      await leaveTeam(teamId);
+      await deleteTeam(teamId);
       router.push('/team');
     } catch (error) {
-      alert("Błąd podczas opuszczania zespołu.");
+      alert("Błąd. Tylko lider może usunąć zespół.");
     }
   };
 
@@ -90,7 +116,7 @@ export default function TeamDetailsPage() {
           <button onClick={() => router.push('/team')} className="text-sm text-slate-300 hover:text-white">
             &larr; Wróć
           </button>
-          <h1 className="text-xl font-bold">Panel Zespołu #{teamId}</h1>
+          <h1 className="text-xl font-bold">Panel Zespołu #{teamId} {teamName}</h1>
         </div>
         
         {/* Menu "Trzy kropki" */}
@@ -98,14 +124,27 @@ export default function TeamDetailsPage() {
           <button onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-slate-700 rounded-full font-bold">
             &#8942;
           </button>
+          
           {showMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-xl border z-10 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-56 bg-white text-black rounded-md shadow-xl border z-10 overflow-hidden">
+              
+              {/* Przycisk wychodzenia (dla każdego) */}
               <button 
                 onClick={handleLeaveTeam}
-                className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-semibold"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 font-semibold border-b"
               >
-                Opuść zespół
+                {members.length === 1 ? 'Opuść i usuń zespół' : 'Opuść zespół'}
               </button>
+
+              {/* Przycisk usuwania (TYLKO DLA LIDERA) */}
+              {myUserId === leaderId && members.length > 1 && (
+                <button 
+                  onClick={handleDeleteTeam}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
+                >
+                  Usuń zespół na zawsze
+                </button>
+              )}
             </div>
           )}
         </div>

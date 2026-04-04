@@ -1,5 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1';
 
+// user api
+
 export const loginUser = async (email: string, password: string) => {
   const res = await fetch(`${API_URL}/auth/login/`, {
     method: 'POST',
@@ -57,6 +59,9 @@ export const logoutUser = async () => {
   localStorage.removeItem('refresh');
 };
 
+
+// token api
+
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
   let token = localStorage.getItem('access');
 
@@ -109,6 +114,9 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   return response;
 }
 
+
+// chat api
+
 export const getUsers = async () => {
   const res = await fetchWithAuth(`${API_URL}/users/`);
   if (!res.ok) throw new Error('Błąd pobierania użytkowników');
@@ -121,8 +129,13 @@ export const getChatHistory = async (targetId: number) => {
   return res.json();
 };
 
+
+// team api
+
 export const getTeams = async () => {
-  const res = await fetchWithAuth(`${API_URL}/teams/`);
+  const res = await fetchWithAuth(`${API_URL}/teams/?t=${Date.now()}`, {
+    cache: 'no-store',
+  });
   if (!res.ok) throw new Error('Błąd pobierania drużyn');
   return res.json();
 };
@@ -155,4 +168,38 @@ export const getTeamChatHistory = async (teamId: number | string) => {
   const res = await fetchWithAuth(`${API_URL}/chat/history/team/${teamId}/`);
   if (!res.ok) throw new Error('Błąd pobierania historii czatu drużyny');
   return res.json();
+};
+
+export const joinTeam = async (teamId: number | string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/join/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  });
+  
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    console.error("Błąd z backendu:", errData);
+    throw new Error(errData.detail || 'Błąd dołączania do drużyny');
+  }
+  return res.json();
+};
+
+export const deleteTeam = async (teamId: number | string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Błąd usuwania drużyny');
+  return true; // DELETE zwraca 204 No Content, więc nie parsujemy JSONa
+};
+
+export const getMyUserId = (): number | null => {
+  const token = localStorage.getItem('access');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.user_id; // Zwraca Twoje ID jako liczbę
+  } catch (e) {
+    return null;
+  }
 };

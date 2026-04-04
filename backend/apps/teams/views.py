@@ -19,15 +19,11 @@ def teams_test(request):
     return HttpResponse('teams test')
 
 class TeamListCreateView(generics.ListCreateAPIView):
-    """
-    GET: Zwraca listę zespołów, do których należysz.
-    POST: Tworzy nowy zespół.
-    """
     serializer_class = TeamSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.request.user.joined_teams.all()
+        return Team.objects.prefetch_related('members').all()
 
     def perform_create(self, serializer):
         team = serializer.save(leader=self.request.user)
@@ -43,7 +39,7 @@ class TeamMemberListView(APIView):
         team = get_object_or_404(Team, pk=pk)
         
         if request.user not in team.members.all():
-            return Response({"detail": "Nie masz dostępu do tego zespołu."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "You don't have access to this team."}, status=status.HTTP_403_FORBIDDEN)
         
         members = team.members.all()
         serializer = UserSerializer(members, many=True)
@@ -64,6 +60,38 @@ class TeamLeaveView(APIView):
         
         if request.user in team.members.all():
             team.members.remove(request.user)
-            return Response({"detail": "Pomyślnie opuszczono zespół."}, status=status.HTTP_200_OK)
+            return Response({"detail": "Successfully exited the team."}, status=status.HTTP_200_OK)
             
-        return Response({"detail": "Nie jesteś członkiem tego zespołu."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "You're not a member of this team."}, status=status.HTTP_400_BAD_REQUEST)
+    
+class TeamJoinView(APIView):
+    """
+    POST: Dołączanie do istniejącego zespołu.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        team = get_object_or_404(Team, pk=pk)
+        
+        if team.members.filter(id=request.user.id).exists():
+            return Response({"detail": "You're already the member of this team!"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        team.members.add(request.user)
+        return Response({"detail": "Successfully joined the team."}, status=status.HTTP_200_OK)
+
+
+class TeamDeleteView(APIView):
+    """
+    DELETE: Usuwanie zespołu (dostępne tylko dla lidera).
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        team = get_object_or_404(Team, pk=pk)
+        
+        # Super-zabezpieczenie: tylko lider może usunąć zespół!
+        if team.leader != request.user:
+            return Response({"detail": "Only the leader of this team can delete it."}, status=status.HTTP_403_FORBIDDEN)
+            
+        team.delete() # Uwaga: To usunie też wszystkie przypisane do niego wiadomości (Cascade)
+        return Response(status=status.HTTP_204_NO_CONTENT)
