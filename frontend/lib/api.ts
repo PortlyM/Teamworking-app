@@ -120,3 +120,33 @@ export const getChatHistory = async (targetId: number) => {
   if (!res.ok) throw new Error('Błąd pobierania historii czatu');
   return res.json();
 };
+
+export const getTeams = async () => {
+  const res = await fetchWithAuth(`${API_URL}/teams/`);
+  if (!res.ok) throw new Error('Błąd pobierania drużyn');
+  return res.json();
+};
+
+export const createTeam = async (name: string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error('Błąd tworzenia drużyny');
+  return res.json();
+};
+
+export const getTeamMembers = async (teamId: number | string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/members/`);
+  if (!res.ok) throw new Error('Błąd pobierania członków drużyny');
+  return res.json();
+};
+
+export const leaveTeam = async (teamId: number | string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/leave/`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Błąd opuszczania drużyny');
+  return res.json();
+};
