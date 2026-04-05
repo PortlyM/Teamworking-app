@@ -31,7 +31,7 @@ class TeamListCreateView(generics.ListCreateAPIView):
 
 class TeamMemberListView(APIView):
     """
-    GET: Zwraca listę członków zespołu i ID lidera.
+    GET: Zwraca nazwę, listę członków zespołu i ID lidera.
     """
     permission_classes = [IsAuthenticated]
 
@@ -45,6 +45,7 @@ class TeamMemberListView(APIView):
         serializer = UserSerializer(members, many=True)
         
         return Response({
+            "name": team.name,
             "leader_id": team.leader.id if team.leader else None,
             "members": serializer.data
         })

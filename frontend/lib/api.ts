@@ -190,7 +190,7 @@ export const deleteTeam = async (teamId: number | string) => {
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Błąd usuwania drużyny');
-  return true; // DELETE zwraca 204 No Content, więc nie parsujemy JSONa
+  return true;
 };
 
 export const getMyUserId = (): number | null => {
@@ -198,8 +198,45 @@ export const getMyUserId = (): number | null => {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.user_id; // Zwraca Twoje ID jako liczbę
+    return payload.user_id;
   } catch (e) {
     return null;
   }
+};
+
+
+// task api
+
+export const getTasks = async (teamId: string | number) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/tasks/`);
+  if (!res.ok) throw new Error('Błąd pobierania zadań');
+  return res.json();
+};
+
+export const createTask = async (teamId: string | number, title: string) => {
+  const res = await fetchWithAuth(`${API_URL}/teams/${teamId}/tasks/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+  if (!res.ok) throw new Error('Błąd tworzenia zadania');
+  return res.json();
+};
+
+export const toggleTask = async (taskId: number, is_completed: boolean) => {
+  const res = await fetchWithAuth(`${API_URL}/tasks/${taskId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_completed }),
+  });
+  if (!res.ok) throw new Error('Błąd aktualizacji zadania');
+  return res.json();
+};
+
+export const deleteTask = async (taskId: number) => {
+  const res = await fetchWithAuth(`${API_URL}/tasks/${taskId}/`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Błąd usuwania zadania');
+  return true;
 };

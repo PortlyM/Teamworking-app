@@ -15,9 +15,6 @@ export default function TeamsHubPage() {
   const fetchTeams = async () => {
     try {
       const data = await getTeams();
-      
-      // SZPIEG: Wyświetlamy w konsoli surowe dane z backendu
-      console.log("Dane drużyn z backendu:", data); 
 
       const sortedTeams = data.sort((a: Team, b: Team) => 
         (a.is_member === b.is_member) ? 0 : a.is_member ? -1 : 1
@@ -39,7 +36,7 @@ export default function TeamsHubPage() {
       await createTeam(newTeamName);
       setNewTeamName('');
       setIsModalOpen(false);
-      fetchTeams(); // Odświeżamy listę, żeby nowy zespół się pojawił
+      fetchTeams();
     } catch (error) {
       alert("Błąd przy tworzeniu.");
     }
@@ -49,10 +46,8 @@ export default function TeamsHubPage() {
     e.stopPropagation();
     try {
       await joinTeam(teamId);
-      // Po udanym dołączeniu natychmiast odświeżamy listę z bazy
       await fetchTeams(); 
     } catch (error: any) {
-      // Jeśli backend powie, że już jesteśmy, i tak odświeżamy listę
       await fetchTeams();
     }
   };

@@ -21,6 +21,7 @@ from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView,
 from apps.chat.views import PrivateChatHistoryView, TeamChatHistoryView
 from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView
 from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView, TeamJoinView, TeamDeleteView
+from apps.tasks.views import TaskListCreateView, TaskDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,4 +41,6 @@ urlpatterns = [
     path('api/v1/chat/history/team/<int:team_id>/', TeamChatHistoryView.as_view(), name='team_chat_history'),
     path('api/v1/teams/<int:pk>/join/', TeamJoinView.as_view(), name='team_join'),
     path('api/v1/teams/<int:pk>/', TeamDeleteView.as_view(), name='team_delete'),
+    path('api/v1/teams/<int:team_id>/tasks/', TaskListCreateView.as_view(), name='team_tasks'),
+    path('api/v1/tasks/<int:pk>/', TaskDetailView.as_view(), name='task_detail'),
 ]

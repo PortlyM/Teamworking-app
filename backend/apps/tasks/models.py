@@ -1,11 +1,14 @@
 from django.db import models
-from apps.teams.models import Team # Importujemy model z innej apki
+from django.contrib.auth import get_user_model
+from apps.teams.models import Team
 
-class TaskList(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='task_lists')
-    name = models.CharField(max_length=100)
+User = get_user_model()
 
 class Task(models.Model):
-    task_list = models.ForeignKey(TaskList, on_delete=models.CASCADE, related_name='tasks')
-    title = models.CharField(max_length=200)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='tasks')
+    title = models.CharField(max_length=255)
     is_completed = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"[{self.team.name}] {self.title}"
