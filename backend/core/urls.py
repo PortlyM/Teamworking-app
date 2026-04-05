@@ -16,31 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenRefreshView
-from apps.users.views import RegisterView, EmailTokenObtainPairView, LogoutView, UserListView
-from apps.chat.views import PrivateChatHistoryView, TeamChatHistoryView
-from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView
-from apps.teams.views import TeamListCreateView, TeamMemberListView, TeamLeaveView, TeamJoinView, TeamDeleteView
-from apps.tasks.views import TaskListCreateView, TaskDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('apps.users.urls')),
-    path('teams/', include('apps.teams.urls')),
-    path('chat/', include('apps.chat.urls')),
-    path('tasks/', include('apps.tasks.urls')),
-    path('api/v1/auth/login/', EmailTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/v1/auth/register/', RegisterView.as_view(), name='auth_register'),
-    path('api/v1/auth/logout/', LogoutView.as_view(), name='auth_logout'),
-    path('api/v1/users/', UserListView.as_view(), name='user_list'),
-    path('api/v1/chat/history/private/<int:target_id>/', PrivateChatHistoryView.as_view(), name='private_chat_history'),
-    path('api/v1/teams/', TeamListCreateView.as_view(), name='team_list_create'),
-    path('api/v1/teams/<int:pk>/members/', TeamMemberListView.as_view(), name='team_members'),
-    path('api/v1/teams/<int:pk>/leave/', TeamLeaveView.as_view(), name='team_leave'),
-    path('api/v1/chat/history/team/<int:team_id>/', TeamChatHistoryView.as_view(), name='team_chat_history'),
-    path('api/v1/teams/<int:pk>/join/', TeamJoinView.as_view(), name='team_join'),
-    path('api/v1/teams/<int:pk>/', TeamDeleteView.as_view(), name='team_delete'),
-    path('api/v1/teams/<int:team_id>/tasks/', TaskListCreateView.as_view(), name='team_tasks'),
-    path('api/v1/tasks/<int:pk>/', TaskDetailView.as_view(), name='task_detail'),
+    path('api/v1/', include('apps.users.urls')),
+    path('api/v1/teams/', include('apps.teams.urls')),
+    path('api/v1/chat/', include('apps.chat.urls')),
+    path('api/v1/tasks/', include('apps.tasks.urls')),
 ]

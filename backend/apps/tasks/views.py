@@ -1,13 +1,9 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from .models import Task
 from .serializers import TaskSerializer
 from apps.teams.models import Team
-
-def tasks_test(request):
-    return HttpResponse('tasks test')
 
 class TaskListCreateView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer

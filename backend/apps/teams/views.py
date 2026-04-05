@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from .models import Team
 from .serializers import TeamSerializer
 from apps.users.serializers import UserSerializer 
@@ -14,9 +13,6 @@ class TeamListView(APIView):
     def get(self, request):
         content = {'message': f'Cześć {request.user.email}, to są Twoje drużyny!'}
         return Response(content)
-
-def teams_test(request):
-    return HttpResponse('teams test')
 
 class TeamListCreateView(generics.ListCreateAPIView):
     serializer_class = TeamSerializer

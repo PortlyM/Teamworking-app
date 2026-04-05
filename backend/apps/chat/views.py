@@ -24,7 +24,6 @@ class TeamChatHistoryView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Wyciągamy ID zespołu z adresu URL
         team_id = self.kwargs['team_id']
         team = get_object_or_404(Team, id=team_id)
         

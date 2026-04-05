@@ -165,7 +165,7 @@ export const leaveTeam = async (teamId: number | string) => {
 };
 
 export const getTeamChatHistory = async (teamId: number | string) => {
-  const res = await fetchWithAuth(`${API_URL}/chat/history/team/${teamId}/`);
+  const res = await fetchWithAuth(`${API_URL}/teams/chat/history/team/${teamId}/`);
   if (!res.ok) throw new Error('Błąd pobierania historii czatu drużyny');
   return res.json();
 };
