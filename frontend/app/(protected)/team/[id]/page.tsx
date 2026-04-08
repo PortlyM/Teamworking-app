@@ -2,15 +2,13 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-// DODANE IMPORTY API DLA ZADAŃ
 import { 
-  getTeamMembers, leaveTeam, getTeamChatHistory, deleteTeam, getMyUserId,
+  getTeamMembers, leaveTeam, getTeamChatHistory, getValidToken, deleteTeam, getMyUserId,
   getTasks, createTask, toggleTask, deleteTask 
 } from '@/lib/api';
 
 type User = { id: number; username: string; email: string };
 type Message = { sender_username: string; message: string; timestamp: string };
-// NOWY TYP DLA ZADANIA
 type Task = { id: number; title: string; is_completed: boolean; creator_name: string };
 
 export default function TeamDetailsPage() {
@@ -26,7 +24,6 @@ export default function TeamDetailsPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentText, setCurrentText] = useState('');
   
-  // NOWE STANY DLA ZADAŃ
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   
@@ -35,7 +32,6 @@ export default function TeamDetailsPage() {
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // FUNKCJA POBIERAJĄCA ZADANIA
   const fetchTasksData = async () => {
     try {
       const data = await getTasks(teamId);
@@ -48,6 +44,7 @@ export default function TeamDetailsPage() {
   useEffect(() => {
     if (!teamId) return;
     
+    // --- 1. POBIERANIE DANYCH HTTP ---
     getTeamMembers(teamId)
       .then(data => {
         setTeamName(data.name);
@@ -64,25 +61,35 @@ export default function TeamDetailsPage() {
       .then(data => setMessages(data))
       .catch(err => console.error("Nie udało się załadować historii", err));
 
-    // Ładujemy zadania przy wejściu do komponentu
     fetchTasksData();
 
-    const token = localStorage.getItem('access');
-    const socketUrl = `ws://localhost:8001/ws/chat/team/${teamId}/?token=${token}`;
-    
-    const socket = new WebSocket(socketUrl);
-    ws.current = socket;
+    const connectWebSocket = async () => {
+      const validToken = await getValidToken();
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMessages((prev) => [...prev, data]);
+      if (!validToken) {
+        console.error("Brak ważnego tokenu, przerywam łączenie z czatem.");
+        return;
+      }
+
+      const socketUrl = `ws://localhost:8001/ws/chat/team/${teamId}/?token=${validToken}`;
+      const socket = new WebSocket(socketUrl);
+      ws.current = socket;
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setMessages((prev) => [...prev, data]);
+      };
     };
 
+    connectWebSocket();
+
     return () => {
-      if (socket.readyState === WebSocket.CONNECTING) {
-        socket.onopen = () => socket.close();
-      } else if (socket.readyState === WebSocket.OPEN) {
-        socket.close();
+      if (ws.current) {
+        if (ws.current.readyState === WebSocket.CONNECTING) {
+          ws.current.onopen = () => ws.current?.close();
+        } else if (ws.current.readyState === WebSocket.OPEN) {
+          ws.current.close();
+        }
       }
     };
   }, [teamId, router]);

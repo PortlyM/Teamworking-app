@@ -62,53 +62,71 @@ export const logoutUser = async () => {
 
 // token api
 
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  let token = localStorage.getItem('access');
+import { jwtDecode } from "jwt-decode";
 
-  let response = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+let refreshTokenPromise: Promise<string> | null = null;
+
+async function getNewAccessToken(): Promise<string> {
+  const refreshToken = localStorage.getItem('refresh');
+  if (!refreshToken) throw new Error("Brak refresh tokenu w pamięci");
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/token/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!response.ok) throw new Error("Refresh token wygasł lub został odrzucony");
+
+    const data = await response.json();
+    localStorage.setItem('access', data.access);
+    return data.access;
+  } finally {
+    refreshTokenPromise = null;
+  }
+}
+
+export async function getValidToken(): Promise<string | null> {
+  let token = localStorage.getItem('access');
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+
+    if (decoded.exp && decoded.exp < currentTime + 60) {
+      if (!refreshTokenPromise) {
+        refreshTokenPromise = getNewAccessToken();
+      }
+      token = await refreshTokenPromise;
+    }
+    return token;
+  } catch (error) {
+    console.error("Błąd walidacji tokenu:", error);
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    return null;
+  }
+}
+
+export async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = await getValidToken();
+  const headers = new Headers(options.headers || {});
+
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  } else {
+    window.location.href = '/login';
+    throw new Error("Brak autoryzacji");
+  }
+
+  const response = await fetch(url, { ...options, headers });
 
   if (response.status === 401) {
-    console.log("Token wygasł! Próbuję odświeżyć...");
-    const refreshToken = localStorage.getItem('refresh');
-
-    if (refreshToken) {
-      try {
-        const refreshResponse = await fetch(`${API_URL}/token/refresh/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh: refreshToken }),
-        });
-
-        if (refreshResponse.ok) {
-          const data = await refreshResponse.json();
-          localStorage.setItem('access', data.access);
-          token = data.access;
-
-          response = await fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-        } else {
-          throw new Error("Refresh token wygasł");
-        }
-      } catch (error) {
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        window.location.href = '/login'; 
-        throw error;
-      }
-    } else {
-      window.location.href = '/login';
-    }
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    window.location.href = '/login';
   }
 
   return response;

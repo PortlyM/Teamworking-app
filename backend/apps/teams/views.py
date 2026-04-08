@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 from .models import Team
 from .serializers import TeamSerializer
 from apps.users.serializers import UserSerializer 
@@ -92,3 +93,17 @@ class TeamDeleteView(APIView):
             
         team.delete() # Uwaga: To usunie też wszystkie przypisane do niego wiadomości (Cascade)
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+User = get_user_model()
+
+class DashboardStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        total_users = User.objects.count()
+        total_teams = Team.objects.count()
+
+        return Response({
+            'total_users': total_users,
+            'total_teams': total_teams
+        })
