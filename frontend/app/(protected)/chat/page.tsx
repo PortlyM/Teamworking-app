@@ -63,7 +63,7 @@ export default function ChatPage() {
       
       <div className="w-1/3 bg-gray-50 border-r flex flex-col">
         <div className="p-4 bg-gray-100 border-b font-bold text-gray-700">
-          Użytkownicy
+          Users
         </div>
         <div className="overflow-y-auto flex-1">
           {users.map((u) => (
@@ -85,7 +85,7 @@ export default function ChatPage() {
         {selectedUser ? (
           <>
             <div className="p-4 border-b bg-white font-bold text-lg">
-              Czat z: <span className="text-blue-600">{selectedUser.username}</span>
+              Chat with: <span className="text-blue-600">{selectedUser.username}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -119,20 +119,20 @@ export default function ChatPage() {
                 type="text"
                 value={currentText}
                 onChange={(e) => setCurrentText(e.target.value)}
-                placeholder="Napisz wiadomość..."
+                placeholder="Write message..."
                 className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button 
                 type="submit" 
                 className="px-6 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700"
               >
-                Wyślij
+                Send
               </button>
             </form>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-400">
-            Wybierz użytkownika z listy po lewej, aby rozpocząć rozmowę.
+            Choose user from the list on the left, to start conversation.
           </div>
         )}
       </div>

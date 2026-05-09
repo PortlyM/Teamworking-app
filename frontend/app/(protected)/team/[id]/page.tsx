@@ -44,7 +44,6 @@ export default function TeamDetailsPage() {
   useEffect(() => {
     if (!teamId) return;
     
-    // --- 1. POBIERANIE DANYCH HTTP ---
     getTeamMembers(teamId)
       .then(data => {
         setTeamName(data.name);
@@ -53,7 +52,7 @@ export default function TeamDetailsPage() {
       })
       .catch(err => {
         console.error(err);
-        alert("Brak dostępu lub zespół nie istnieje.");
+        alert("Access denied or team does not exist.");
         router.push('/team');
       });
 
@@ -107,34 +106,34 @@ export default function TeamDetailsPage() {
 
   const handleLeaveTeam = async () => {
     if (members.length === 1) {
-      if (!confirm("Jesteś jedynym członkiem tej grupy. Opuszczenie jej spowoduje jej całkowite i nieodwracalne usunięcie. Kontynuować?")) return;
+      if (!confirm("You are the only member of this group. Leaving will result in its permanent and irreversible deletion. Continue?")) return;
       
       try {
         await deleteTeam(teamId);
         router.push('/team');
       } catch (error) {
-        alert("Błąd podczas usuwania zespołu.");
+        alert("Error deleting team.");
       }
     } 
     else {
-      if (!confirm("Czy na pewno chcesz opuścić ten zespół?")) return;
+      if (!confirm("Are you sure you want to leave this team?")) return;
       
       try {
         await leaveTeam(teamId);
         router.push('/team');
       } catch (error) {
-        alert("Błąd podczas opuszczania zespołu.");
+        alert("Error leaving team.");
       }
     }
   };
 
   const handleDeleteTeam = async () => {
-    if (!confirm("OSTRZEŻENIE: Całkowite usunięcie zespołu skasuje również jego historię czatu. Kontynuować?")) return;
+    if (!confirm("WARNING: Completely deleting a team will also delete its chat history. Continue?")) return;
     try {
       await deleteTeam(teamId);
       router.push('/team');
     } catch (error) {
-      alert("Błąd. Tylko lider może usunąć zespół.");
+      alert("Error. Only the leader can delete a team.");
     }
   };
 
@@ -147,7 +146,7 @@ export default function TeamDetailsPage() {
       setNewTaskTitle('');
       fetchTasksData(); // Odśwież listę po dodaniu
     } catch (err) {
-      alert("Błąd dodawania zadania.");
+      alert("Error adding task.");
     }
   };
 
@@ -157,7 +156,7 @@ export default function TeamDetailsPage() {
       setTasks(tasks.map(t => t.id === taskId ? { ...t, is_completed: !currentStatus } : t));
       await toggleTask(taskId, !currentStatus);
     } catch (err) {
-      fetchTasksData(); // Przywróć stan z backendu w razie błędu połączenia
+      fetchTasksData();
     }
   };
 
@@ -166,23 +165,23 @@ export default function TeamDetailsPage() {
       await deleteTask(taskId);
       fetchTasksData();
     } catch (err) {
-      alert("Błąd usuwania zadania.");
+      alert("Error deleting task.");
     }
   };
 
   return (
     <div className="flex flex-col h-[85vh] bg-white rounded-xl border shadow-sm overflow-hidden">
       
-      {/* HEADER ZESPOŁU */}
+      {/* TEAM HEADER */}
       <div className="flex justify-between items-center p-4 bg-slate-800 text-white">
         <div className="flex items-center gap-4">
           <button onClick={() => router.push('/team')} className="text-sm text-slate-300 hover:text-white">
-            &larr; Wróć
+            &larr; Back
           </button>
           <h1 className="text-xl font-bold">{teamName}</h1>
         </div>
         
-        {/* Menu "Trzy kropki" */}
+        {/* Menu "Three dots" */}
         <div className="relative">
           <button onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-slate-700 rounded-full font-bold">
             &#8942;
@@ -202,7 +201,7 @@ export default function TeamDetailsPage() {
                   onClick={handleDeleteTeam}
                   className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 font-bold"
                 >
-                  Usuń zespół na zawsze
+                  Delete team permanently
                 </button>
               )}
             </div>
@@ -211,7 +210,7 @@ export default function TeamDetailsPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* LEWA KOLUMNA: Czat Zespołowy (Teraz zajmuje 50% szerokości) */}
+        {/* Left column */}
         <div className="w-1/2 flex flex-col border-r bg-gray-50">
           <div className="p-3 bg-white border-b font-semibold text-gray-600 text-sm">
             Czat Grupowy
@@ -219,7 +218,7 @@ export default function TeamDetailsPage() {
           
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && (
-              <p className="text-center text-gray-400 mt-10">Brak nowych wiadomości. Napisz coś!</p>
+              <p className="text-center text-gray-400 mt-10">No new messages. Write something!</p>
             )}
             {messages.map((msg, idx) => (
               <div key={idx} className="flex flex-col items-start">
@@ -248,7 +247,7 @@ export default function TeamDetailsPage() {
           </form>
         </div>
 
-        {/* ŚRODKOWA KOLUMNA: Zadania (Nowa sekcja - 25% szerokości) */}
+        {/* MIDDLE COLUMN */}
         <div className="w-1/4 flex flex-col border-r bg-white">
           <div className="p-3 bg-gray-100 border-b font-bold text-gray-700 text-sm flex justify-between items-center">
             <span>To-Do</span>
@@ -257,7 +256,7 @@ export default function TeamDetailsPage() {
           
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {tasks.length === 0 ? (
-              <p className="text-center text-xs text-gray-400 mt-4">Brak zadań. Dodaj pierwsze!</p>
+              <p className="text-center text-xs text-gray-400 mt-4">No tasks. Add first!</p>
             ) : (
               tasks.map(task => (
                 <div key={task.id} className={`p-3 rounded-lg border flex flex-col gap-2 transition-all ${task.is_completed ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 shadow-sm'}`}>
@@ -282,7 +281,7 @@ export default function TeamDetailsPage() {
                     </button>
                   </div>
                   <div className="text-[10px] text-gray-400 ml-6">
-                    Dodał: {task.creator_name}
+                    Added by: {task.creator_name}
                   </div>
                 </div>
               ))
@@ -298,15 +297,15 @@ export default function TeamDetailsPage() {
               className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
             />
             <button type="submit" className="w-full py-1.5 bg-slate-800 text-white text-sm font-bold rounded-md hover:bg-slate-700">
-              + Dodaj
+              + Add
             </button>
           </form>
         </div>
 
-        {/* PRAWA KOLUMNA: Członkowie (Teraz zajmuje 25% szerokości) */}
+        {/* RIGHT COLUMN */}
         <div className="w-1/4 bg-white flex flex-col">
           <div className="p-3 bg-gray-100 border-b font-bold text-gray-700 text-sm text-center">
-            Członkowie ({members.length})
+            Members ({members.length})
           </div>
           <div className="overflow-y-auto flex-1 p-2 space-y-1">
             {members.map(user => (

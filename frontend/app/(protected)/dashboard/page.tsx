@@ -38,8 +38,8 @@ export default function DashboardPage() {
       
       {/* Nagłówek Dashboardu */}
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Panel Główny</h1>
-        <p className="text-gray-500">Witaj w centrum dowodzenia aplikacji Teamworking.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Main dashboard</h1>
+        <p className="text-gray-500">Welcome to the Teamworking Command Center.</p>
       </div>
 
       {/* Stan ładowania */}
@@ -56,7 +56,7 @@ export default function DashboardPage() {
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Zarejestrowani Użytkownicy
+                Registered users
               </p>
               <h2 className="text-5xl font-extrabold text-blue-600">
                 {stats?.total_users || 0}
@@ -71,7 +71,7 @@ export default function DashboardPage() {
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
               <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                Utworzone Zespoły
+                Created teams
               </p>
               <h2 className="text-5xl font-extrabold text-emerald-500">
                 {stats?.total_teams || 0}

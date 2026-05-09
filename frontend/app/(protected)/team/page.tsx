@@ -55,12 +55,12 @@ export default function TeamsHubPage() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Centrum Zespołów</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Teams centre</h1>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-md transition-all"
         >
-          + Stwórz zespół
+          + Create team
         </button>
       </div>
 
@@ -89,7 +89,7 @@ export default function TeamsHubPage() {
             
             {team.is_member ? (
               <div className="flex items-center text-blue-600 font-bold text-sm">
-                <span>Przejdź do zespołu</span>
+                <span>Enter team</span>
                 <span className="ml-2">&rarr;</span>
               </div>
             ) : (
@@ -97,7 +97,7 @@ export default function TeamsHubPage() {
                 onClick={(e) => handleJoinClick(team.id, e)}
                 className="w-full bg-emerald-500 text-white py-2 rounded-lg text-sm font-bold hover:bg-emerald-600 transition-colors shadow-sm"
               >
-                Dołącz do zespołu
+                Join team
               </button>
             )}
           </div>

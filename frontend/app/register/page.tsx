@@ -23,16 +23,16 @@ export default function RegisterPage() {
     setError(null);
 
     if (formData.password !== formData.password_confirm) {
-      setError("Hasła się nie zgadzają!");
+      setError("Passwords do not match!");
       return;
     }
 
     try {
       await registerUser(formData);
-      alert("Konto utworzone pomyślnie! Możesz się teraz zalogować.");
+      alert("Account created successfully! You can now log in.");
       router.push('/login');
     } catch (err: any) {
-      setError("Błąd rejestracji. Upewnij się, że email/nazwa użytkownika nie są zajęte.");
+      setError("Registration error. Make sure the email/username is not taken.");
       console.error(err.message);
     }
   };
@@ -40,7 +40,7 @@ export default function RegisterPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <form onSubmit={handleSubmit} className="p-8 bg-white rounded-lg shadow-md w-96">
-        <h1 className="mb-6 text-2xl font-bold text-center">Rejestracja</h1>
+        <h1 className="mb-6 text-2xl font-bold text-center">Registration</h1>
         
         {error && <div className="p-2 mb-4 text-sm text-red-600 bg-red-100 rounded">{error}</div>}
 
@@ -50,27 +50,27 @@ export default function RegisterPage() {
           onChange={handleChange} 
         />
         <input 
-          type="text" name="username" placeholder="Nazwa użytkownika" required
+          type="text" name="username" placeholder="Username" required
           className="block w-full p-2 mb-4 border rounded"
           onChange={handleChange} 
         />
         <input 
-          type="password" name="password" placeholder="Hasło" required
+          type="password" name="password" placeholder="Password" required
           className="block w-full p-2 mb-4 border rounded"
           onChange={handleChange} 
         />
         <input 
-          type="password" name="password_confirm" placeholder="Powtórz hasło" required
+          type="password" name="password_confirm" placeholder="Repeat password" required
           className="block w-full p-4 mb-4 border rounded"
           onChange={handleChange} 
         />
         
         <button type="submit" className="w-full p-2 font-bold text-white bg-green-600 rounded hover:bg-green-700">
-          Zarejestruj się
+          Register
         </button>
 
         <div className="mt-4 text-sm text-center">
-          Masz już konto? <Link href="/login" className="text-blue-600 hover:underline">Zaloguj się</Link>
+          Already have an account? <Link href="/login" className="text-blue-600 hover:underline">Log in</Link>
         </div>
       </form>
     </div>
